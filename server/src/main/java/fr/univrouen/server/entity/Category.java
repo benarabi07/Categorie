@@ -41,6 +41,14 @@ public class Category {
     public Long getParentId() {
         return parent != null ? parent.getId() : null;
     }
-
+    @JsonProperty("parent_id")
+    public void setParentId(Long parentId) {
+        if (parentId != null) {
+            this.parent = new Category();
+            this.parent.setId(parentId);
+        } else {
+            this.parent = null;
+        }
+    }
 }
 

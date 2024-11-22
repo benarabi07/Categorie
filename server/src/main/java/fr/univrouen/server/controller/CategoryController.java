@@ -25,7 +25,7 @@ public class CategoryController {
     @PostMapping
     public ResponseEntity<String> createCategory(@RequestBody Category category) {
         try {
-            categoryService.createCategory(category);  // Tente de créer la catégorie
+            categoryService.createCategory(category);
             return ResponseEntity.status(201).body("Catégorie créée avec succès.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Données invalides pour la catégorie : " + e.getMessage());
@@ -49,6 +49,20 @@ public class CategoryController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Données invalides : " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de l'ajout de la catégorie enfant.");
+        }
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateCategory(
+            @PathVariable Long id,
+            @RequestBody Category request) {
+        try {
+        Category updatedCategory = categoryService.updateCategory(id, request.getName(), request.getParentId());
+        return ResponseEntity.ok("Catégorie mise à jour avec succès : ");
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Données invalides : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de la mise à jour de la catégorie.");
         }
     }
 }
