@@ -1,5 +1,6 @@
 package fr.univrouen.server.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import fr.univrouen.server.entity.Category;
@@ -21,9 +22,33 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        return categoryService.createCategory(category);
+    public ResponseEntity<String> createCategory(@RequestBody Category category) {
+        try {
+            categoryService.createCategory(category);  // Tente de créer la catégorie
+            return ResponseEntity.status(201).body("Catégorie créée avec succès.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Données invalides pour la catégorie : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de la création de la catégorie.");
+        }
+    }
+    @PostMapping("/{parentId}/children")
+    public ResponseEntity<String> addChildToParent(
+            @PathVariable Long parentId,
+            @RequestBody Category childCategory
+    ) {
+        try {
+
+            if (!categoryService.parentExists(parentId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("La catégorie parente avec l'ID " + parentId + " n'existe pas.");
+            }
+            categoryService.addChildToParent(parentId, childCategory);
+            return ResponseEntity.ok("Catégorie enfant ajoutée avec succès.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Données invalides : " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Une erreur est survenue lors de l'ajout de la catégorie enfant.");
+        }
     }
 }
